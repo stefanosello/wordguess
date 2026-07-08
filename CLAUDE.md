@@ -32,8 +32,15 @@ model/     char-level GPT definition, tokenizer, training script
 server/    FastAPI app: puzzle generation, rollout, scoring, in-memory cache
 web/       single-page frontend (vanilla JS, no build step)
 corpora/   raw training texts + trained checkpoints (weights gitignored)
-scripts/   tooling — the backlog generator lives here
+tests/     pytest tests, mirroring the package they cover (test_tokenizer.py, …)
+scripts/   dev + tooling scripts
 ```
+
+**Tests live in the top-level `tests/` directory**, run with `pytest`, one file per
+unit under test (`tests/test_tokenizer.py`, `tests/test_model.py`,
+`tests/test_puzzle.py`, …). Keep the tree flat and mirror the module names so a test
+is easy to find. The lightweight runnable `__main__` demos described below stay inside
+their own module (they're sanity checks, not the test suite).
 
 `model/` and `server/` are Python packages. `corpora/<name>/` holds one corpus's
 `input.txt` plus its trained checkpoint (the checkpoint is **not** committed).
@@ -104,7 +111,7 @@ After M1, **stop and confirm the loop works end to end** before starting M2.
 1. Read the issue's **scope**, **acceptance criteria**, and **out-of-scope** notes.
    The out-of-scope section is load-bearing — it exists to stop scope creep. Ship the
    thin thing, then iterate.
-2. Branch: `git switch -c m1-<short-name>` (e.g. `m1-model-def`).
+2. Branch, using the naming convention below: `git switch -c feature/m1-model-def`.
 3. Implement **only** what's in scope.
 4. Meet **every** acceptance checkbox before calling it done.
 5. Open a PR that closes the issue (`Closes #N` in the body).
@@ -112,8 +119,17 @@ After M1, **stop and confirm the loop works end to end** before starting M2.
 ### Git / PR conventions
 
 - **Never commit directly to `main`.** `main` only ever advances through a merged PR.
-  Always start work on a dedicated branch (`git switch -c <branch>`), push it, and open
-  a PR — even for a one-line docs fix. Treat `main` as read-only in your working copy.
+  Always start work on a dedicated branch, push it, and open a PR — even for a one-line
+  docs fix. Treat `main` as read-only in your working copy. (A GitHub ruleset enforces
+  this server-side.)
+- **Branch names are `<type>/<short-name>`**, where `<type>` describes the task:
+  - `feature/` — a new capability (e.g. `feature/m1-model-def`)
+  - `bugfix/`  — a fix (e.g. `bugfix/puzzle-cache-expiry`)
+  - `doc/`     — documentation (e.g. `doc/readme-setup`)
+  - `infra/`   — tooling, CI, deployment (e.g. `infra/dockerfile`)
+
+  Keep `<short-name>` lowercase and hyphenated, and prefix it with the milestone when
+  relevant (`m1-`, `m2-`, …).
 - Small, focused branches — one issue per PR. A reviewer should grasp the diff in a
   few minutes.
 - Present-tense, imperative commit subjects ("Add char-level tokenizer"), a short body
@@ -146,6 +162,8 @@ After M1, **stop and confirm the loop works end to end** before starting M2.
 - Every non-trivial primitive gets a tiny, fast test or a runnable `__main__` demo:
   tokenizer round-trip, a forward-pass shape check, `predict_next` sums to ~1,
   a rollout that prints candidate words + probabilities.
+- Tests go in the top-level `tests/` directory (`pytest`), one file per unit —
+  see [Repo layout](#repo-layout). Runnable `__main__` demos stay in their module.
 - Tests should run on CPU in seconds. Use a tiny model config in tests, not the real one.
 - You don't need 100% coverage — you need enough to trust the mechanic and to *show*
   the mechanic working.
