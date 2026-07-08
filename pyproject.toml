@@ -1,0 +1,9 @@
+# Project tooling config. Kept minimal on purpose — see CLAUDE.md on avoiding
+# premature machinery. Right now it only configures pytest.
+
+[tool.pytest.ini_options]
+# Put the repo root on sys.path so tests can `import server` / `import model`
+# no matter how pytest is launched (`pytest` vs `python -m pytest`). Without
+# this, a bare `pytest` can't find the packages and collection fails.
+pythonpath = ["."]
+testpaths = ["tests"]
