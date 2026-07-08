@@ -1,14 +1,36 @@
 name: CI
 
-# Run the test suite on every branch push and on PRs targeting main, so a red
-# suite is visible before merge. Branch protection on main can then require the
-# "test" check to pass (configured in the repo ruleset, not here).
+# Run lint + tests on every branch push and on PRs targeting main, so a red
+# check is visible before merge. Branch protection on main can then require the
+# "lint" and "test" checks to pass (configured in the repo ruleset, not here).
 on:
   push:
   pull_request:
     branches: [main]
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dev tools
+        # Lint is static analysis — it needs only the dev tools (ruff), not the
+        # runtime deps — so this job skips torch and stays fast. Installing from
+        # requirements-dev.txt keeps ruff's pinned version in one place.
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Lint
+        run: ruff check .
+
   test:
     runs-on: ubuntu-latest  # CPU-only, matching the project's hard constraint
     steps:

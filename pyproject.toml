@@ -1,5 +1,5 @@
 # Project tooling config. Kept minimal on purpose — see CLAUDE.md on avoiding
-# premature machinery. Right now it only configures pytest.
+# premature machinery. Configures pytest and ruff.
 
 [tool.pytest.ini_options]
 # Put the repo root on sys.path so tests can `import server` / `import model`
@@ -7,3 +7,12 @@
 # this, a bare `pytest` can't find the packages and collection fails.
 pythonpath = ["."]
 testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+# A deliberately small, low-noise rule set — readability first, nothing nitpicky
+# to fight. E/W: pycodestyle, F: pyflakes (unused imports/vars, real mistakes),
+# I: import sorting.
+select = ["E", "W", "F", "I"]

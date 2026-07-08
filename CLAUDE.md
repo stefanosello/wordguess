@@ -170,6 +170,9 @@ After M1, **stop and confirm the loop works end to end** before starting M2.
   see [Repo layout](#repo-layout). Runnable `__main__` demos stay in their module.
 - Test-only dependencies live in `requirements-dev.txt`, not `requirements.txt`:
   `pip install -r requirements.txt -r requirements-dev.txt`, then `pytest`.
+- **Lint with `ruff check .`** (config in `pyproject.toml`, a small low-noise rule
+  set; `--fix` auto-fixes). ruff ships in `requirements-dev.txt`. CI runs both lint
+  and tests, so run them locally before pushing.
 - Tests should run on CPU in seconds. Use a tiny model config in tests, not the real one.
 - You don't need 100% coverage — you need enough to trust the mechanic and to *show*
   the mechanic working.
