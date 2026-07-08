@@ -45,6 +45,35 @@ Browser  ──POST /puzzle──▶  FastAPI  ──▶  one small char-level G
 Stack: Python, PyTorch, FastAPI, uvicorn. Model weights are **not** committed —
 they are trained locally from the corpora.
 
+## Dev setup
+
+Everything runs on CPU — no GPU required. From the repo root:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt   # torch (CPU build), fastapi, uvicorn
+```
+
+Run the server:
+
+```bash
+uvicorn server.app:app --reload
+```
+
+Then check it's alive:
+
+```bash
+curl localhost:8000/health   # -> {"status":"ok"}
+```
+
+Run the tests:
+
+```bash
+pip install -r requirements-dev.txt   # pytest, httpx (test deps)
+pytest
+```
+
 ## API contract (target)
 
 - `POST /puzzle` → `{corpus?}` → `{puzzle_id, prompt, choices[]}`

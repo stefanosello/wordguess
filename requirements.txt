@@ -1,0 +1,9 @@
+# wordguess runtime dependencies.
+#
+# CPU-only is a hard requirement (see CLAUDE.md). The default PyPI torch wheel
+# runs fine without a GPU — the bundled CUDA libraries simply go unused — so no
+# special index or extras are needed here. Keep this list short: torch is the
+# one heavy dependency; don't add big libraries when a few lines of code will do.
+torch==2.2.2
+fastapi==0.111.0
+uvicorn==0.30.1

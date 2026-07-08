@@ -1,0 +1,8 @@
+# Test/dev dependencies, kept separate from the runtime requirements.txt.
+#
+#   pip install -r requirements.txt -r requirements-dev.txt
+#
+# httpx is what FastAPI's TestClient drives the app through; pin it explicitly
+# since the tests import it even though it also arrives as a FastAPI dependency.
+pytest==8.2.2
+httpx==0.28.1
