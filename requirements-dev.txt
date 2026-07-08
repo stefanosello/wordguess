@@ -6,3 +6,4 @@
 # since the tests import it even though it also arrives as a FastAPI dependency.
 pytest==8.2.2
 httpx==0.28.1
+ruff==0.15.20

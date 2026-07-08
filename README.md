@@ -67,11 +67,12 @@ Then check it's alive:
 curl localhost:8000/health   # -> {"status":"ok"}
 ```
 
-Run the tests:
+Run the tests and linter:
 
 ```bash
-pip install -r requirements-dev.txt   # pytest, httpx (test deps)
+pip install -r requirements-dev.txt   # pytest, httpx, ruff (dev deps)
 pytest
+ruff check .                          # lint; add --fix to auto-fix
 ```
 
 ## API contract (target)
