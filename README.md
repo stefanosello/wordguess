@@ -67,6 +67,13 @@ Then check it's alive:
 curl localhost:8000/health   # -> {"status":"ok"}
 ```
 
+Run the tests:
+
+```bash
+pip install -r requirements-dev.txt   # pytest, httpx (test deps)
+pytest
+```
+
 ## API contract (target)
 
 - `POST /puzzle` → `{corpus?}` → `{puzzle_id, prompt, choices[]}`

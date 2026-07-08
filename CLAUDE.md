@@ -159,11 +159,17 @@ After M1, **stop and confirm the loop works end to end** before starting M2.
 
 ### Testing
 
-- Every non-trivial primitive gets a tiny, fast test or a runnable `__main__` demo:
-  tokenizer round-trip, a forward-pass shape check, `predict_next` sums to ~1,
-  a rollout that prints candidate words + probabilities.
+- **Every piece of code ships with a test — no exceptions, even trivial ones.** A
+  one-line endpoint or a boring helper still gets a test: it pins the contract, guards
+  against regressions, and keeps the suite honest as a green gate for CI. If it's worth
+  committing, it's worth a test.
+- Beyond that baseline, every non-trivial primitive also gets a focused check or a
+  runnable `__main__` demo: tokenizer round-trip, a forward-pass shape check,
+  `predict_next` sums to ~1, a rollout that prints candidate words + probabilities.
 - Tests go in the top-level `tests/` directory (`pytest`), one file per unit —
   see [Repo layout](#repo-layout). Runnable `__main__` demos stay in their module.
+- Test-only dependencies live in `requirements-dev.txt`, not `requirements.txt`:
+  `pip install -r requirements.txt -r requirements-dev.txt`, then `pytest`.
 - Tests should run on CPU in seconds. Use a tiny model config in tests, not the real one.
 - You don't need 100% coverage — you need enough to trust the mechanic and to *show*
   the mechanic working.
