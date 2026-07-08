@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+
+# Model weights are trained locally and never committed.
+*.pt
+*.pth
+*.ckpt
+corpora/**/checkpoints/
+corpora/**/*.bin
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
