@@ -109,6 +109,9 @@ After M1, **stop and confirm the loop works end to end** before starting M2.
 
 ### Git / PR conventions
 
+- **Never commit directly to `main`.** `main` only ever advances through a merged PR.
+  Always start work on a dedicated branch (`git switch -c <branch>`), push it, and open
+  a PR — even for a one-line docs fix. Treat `main` as read-only in your working copy.
 - Small, focused branches — one issue per PR. A reviewer should grasp the diff in a
   few minutes.
 - Present-tense, imperative commit subjects ("Add char-level tokenizer"), a short body
