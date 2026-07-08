@@ -125,7 +125,7 @@ After M1, **stop and confirm the loop works end to end** before starting M2.
 - **Branch names are `<type>/<short-name>`**, where `<type>` describes the task:
   - `feature/` — a new capability (e.g. `feature/m1-model-def`)
   - `bugfix/`  — a fix (e.g. `bugfix/puzzle-cache-expiry`)
-  - `doc/`     — documentation (e.g. `doc/readme-setup`)
+  - `docs/`    — documentation (e.g. `docs/readme-setup`)
   - `infra/`   — tooling, CI, deployment (e.g. `infra/dockerfile`)
 
   Keep `<short-name>` lowercase and hyphenated, and prefix it with the milestone when
