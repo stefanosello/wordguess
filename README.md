@@ -55,11 +55,10 @@ they are trained locally from the corpora.
 
 ## Backlog
 
-The backlog is the single source of truth in [`scripts/issues.json`](scripts/issues.json).
+The backlog lives on GitHub and is the single source of truth:
 
-- `python scripts/gen.py` regenerates [`BACKLOG.md`](BACKLOG.md) (human-readable)
-  and `scripts/create_github.sh` from the JSON.
-- `./scripts/create_github.sh <owner>/<repo> [--public|--private]` creates the
-  GitHub repo, labels, milestones, and all issues via the `gh` CLI.
+- **Issues** — <https://github.com/stefanosello/wordguess/issues> (grouped into
+  milestones M1–M4)
+- **Project board** — <https://github.com/users/stefanosello/projects/3>
 
-See [`BACKLOG.md`](BACKLOG.md) for the full milestone breakdown.
+Browse or edit work there; there is no generated backlog file to keep in sync.
