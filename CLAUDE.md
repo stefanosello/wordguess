@@ -77,13 +77,15 @@ contract.
 
 ## How we work: backlog-driven, one issue at a time
 
-The backlog is the **single source of truth** and it is generated, not hand-edited:
+**GitHub is the single source of truth for the backlog** — there is no backlog file
+in the repo. Work is tracked entirely as GitHub Issues and on the project board:
 
-- Edit [`scripts/issues.json`](scripts/issues.json) — never edit `BACKLOG.md` or
-  `scripts/create_github.sh` by hand.
-- Run `python scripts/gen.py` to regenerate both.
-- Issues live on GitHub across four milestones (M1–MVP → M4–Polish) and on the
-  linked project board.
+- **Issues** — <https://github.com/stefanosello/wordguess/issues>, across four
+  milestones (M1–MVP → M4–Polish).
+- **Project board** — <https://github.com/users/stefanosello/projects/3> (Status +
+  Milestone fields).
+- Read and edit issues with the `gh` CLI (`gh issue list`, `gh issue view <N>`,
+  `gh issue edit <N>`) or in the web UI. Don't reintroduce a generated backlog file.
 
 **Milestone order matters and is intentional:**
 
@@ -197,10 +199,10 @@ the deliverable.
 ## Quick command reference
 
 ```bash
-# Backlog
-python scripts/gen.py                              # regenerate BACKLOG.md + create script
+# Backlog (GitHub is the source of truth — no generated file)
 gh issue list --repo stefanosello/wordguess        # see open issues
 gh issue view <N> --repo stefanosello/wordguess    # read scope/acceptance
+gh issue edit <N> --repo stefanosello/wordguess    # adjust scope/acceptance
 
 # Project board (needs 'project' token scope)
 gh project item-list 3 --owner stefanosello
