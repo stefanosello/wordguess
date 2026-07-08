@@ -7,6 +7,11 @@
 # this, a bare `pytest` can't find the packages and collection fails.
 pythonpath = ["."]
 testpaths = ["tests"]
+filterwarnings = [
+    # Surface warnings from our own code, but silence one external deprecation
+    # emitted by starlette (a FastAPI dependency) when it imports python-multipart.
+    "ignore:Please use `import python_multipart` instead.:PendingDeprecationWarning",
+]
 
 [tool.ruff]
 line-length = 88

@@ -4,6 +4,10 @@
 # runs fine without a GPU — the bundled CUDA libraries simply go unused — so no
 # special index or extras are needed here. Keep this list short: torch is the
 # one heavy dependency; don't add big libraries when a few lines of code will do.
+# numpy is torch's expected companion — without it torch warns at import
+# ("Failed to initialize NumPy"). Pinned < 2 because torch 2.2.2 is built
+# against the NumPy 1.x ABI.
+numpy==1.26.4
 torch==2.2.2
 fastapi==0.111.0
 uvicorn==0.30.1
