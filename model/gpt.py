@@ -13,6 +13,21 @@ bugs and of misunderstanding. The pieces, top to bottom:
 There is no training loop, tokenizer, or sampling here — just the module and a
 plain forward pass (see the sibling issues). Run `python -m model.gpt` for a
 quick shape sanity check.
+
+Further reading (the whole architecture, explained well):
+  - Vaswani et al., "Attention Is All You Need" — the transformer paper:
+    https://arxiv.org/abs/1706.03762
+  - Karpathy, "Let's build GPT: from scratch, in code, spelled out" (video):
+    https://www.youtube.com/watch?v=kCc8FmEb1nY
+  - Karpathy, nanoGPT — the reference this file is a trimmed, commented copy of:
+    https://github.com/karpathy/nanoGPT
+  - Alammar, "The Illustrated Transformer" — the best visual intro:
+    https://jalammar.github.io/illustrated-transformer/
+  - Alammar, "The Illustrated GPT-2" — decoder-only + masked self-attention:
+    https://jalammar.github.io/illustrated-gpt2/
+  - Rush et al., "The Annotated Transformer" — paper as runnable code:
+    https://nlp.seas.harvard.edu/annotated-transformer/
+Each component below also links the specific resource that explains it.
 """
 
 import math
@@ -26,7 +41,12 @@ from torch.nn import functional as F
 @dataclass
 class GPTConfig:
     """Hyperparameters for the model. Defaults are deliberately tiny — CPU-only,
-    megabytes not gigabytes (see CLAUDE.md invariants)."""
+    megabytes not gigabytes (see CLAUDE.md invariants).
+
+    Char-level modelling (one token = one character) is the simplest tokenizer
+    and keeps the vocab tiny; Karpathy's char-RNN post motivates it well:
+    https://karpathy.github.io/2015/05/21/rnn-effectiveness/
+    """
 
     vocab_size: int = 65  # number of distinct characters (a char-level vocab is small)
     block_size: int = 128  # maximum context length in tokens
@@ -41,6 +61,14 @@ class CausalSelfAttention(nn.Module):
 
     The causal mask is what makes this a *language* model: when predicting the
     next character at position t, the model must not peek at positions > t.
+
+    Concepts and where they're explained:
+      - Scaled dot-product + multi-head attention: "Attention Is All You Need"
+        §3.2 (https://arxiv.org/abs/1706.03762).
+      - The query/key/value intuition, drawn out: "The Illustrated Transformer"
+        (https://jalammar.github.io/illustrated-transformer/).
+      - Masked (causal) self-attention specifically: "The Illustrated GPT-2"
+        (https://jalammar.github.io/illustrated-gpt2/).
     """
 
     def __init__(self, config: GPTConfig):
@@ -77,8 +105,12 @@ class CausalSelfAttention(nn.Module):
         v = v.view(B, T, self.n_head, head_dim).transpose(1, 2)
 
         # Scaled dot-product attention scores: (B, n_head, T, T).
+        # Dividing by sqrt(head_dim) keeps the logits from growing with head
+        # width, which would push softmax into tiny-gradient regions — see
+        # "Attention Is All You Need" §3.2.1 (https://arxiv.org/abs/1706.03762).
         att = (q @ k.transpose(-2, -1)) / math.sqrt(head_dim)
-        # Mask the upper triangle (the future) with -inf so softmax zeros it.
+        # Mask the upper triangle (the future) with -inf so softmax zeros it:
+        # e^(-inf) = 0, so position t gets exactly zero weight on positions > t.
         att = att.masked_fill(self.causal_mask[:, :, :T, :T] == 0, float("-inf"))
         att = F.softmax(att, dim=-1)  # (B, n_head, T, T), rows sum to 1
         att = self.attn_dropout(att)
@@ -91,7 +123,13 @@ class CausalSelfAttention(nn.Module):
 
 
 class MLP(nn.Module):
-    """Per-position feed-forward network: widen 4x, GELU, project back."""
+    """Per-position feed-forward network: widen 4x, GELU, project back.
+
+    The position-wise feed-forward layer is described in "Attention Is All You
+    Need" §3.3 (https://arxiv.org/abs/1706.03762); the 4x width is the standard
+    ratio there. GELU is the smooth activation from Hendrycks & Gimpel,
+    "Gaussian Error Linear Units" (https://arxiv.org/abs/1606.08415).
+    """
 
     def __init__(self, config: GPTConfig):
         super().__init__()
@@ -109,7 +147,18 @@ class MLP(nn.Module):
 
 
 class Block(nn.Module):
-    """One transformer block: pre-norm residual around attention, then MLP."""
+    """One transformer block: pre-norm residual around attention, then MLP.
+
+    Two ideas here:
+      - Residual connections (the `x + ...`) let gradients flow through deep
+        stacks — from He et al., "Deep Residual Learning"
+        (https://arxiv.org/abs/1512.03385).
+      - LayerNorm placed *before* each sub-layer ("pre-norm") trains more
+        stably than the original post-norm; see Xiong et al., "On Layer
+        Normalization in the Transformer Architecture"
+        (https://arxiv.org/abs/2002.04745). LayerNorm itself: Ba et al.
+        (https://arxiv.org/abs/1607.06450).
+    """
 
     def __init__(self, config: GPTConfig):
         super().__init__()
@@ -133,6 +182,12 @@ class GPT(nn.Module):
         self.config = config
 
         # Token ids -> vectors; positions 0..block_size-1 -> vectors.
+        # nn.Embedding is a lookup table (row i = vector for id i):
+        # https://pytorch.org/docs/stable/generated/torch.nn.Embedding.html
+        # These are *learned* positional embeddings (GPT-2 style). The original
+        # transformer instead used fixed sinusoids ("Attention Is All You Need"
+        # §3.5, https://arxiv.org/abs/1706.03762); learned is simpler and what
+        # nanoGPT uses.
         self.token_embedding = nn.Embedding(config.vocab_size, config.n_embd)
         self.position_embedding = nn.Embedding(config.block_size, config.n_embd)
         self.drop = nn.Dropout(config.dropout)
@@ -163,6 +218,11 @@ class GPT(nn.Module):
             x = block(x)  # (B, T, n_embd)
         x = self.ln_f(x)  # (B, T, n_embd)
 
+        # One logit per vocab character, at every position. We stop at raw
+        # logits: apply softmax over the last dim to get the model's next-char
+        # distribution (done by the caller / puzzle code, not here). How logits
+        # become a prediction: "The Illustrated GPT-2"
+        # (https://jalammar.github.io/illustrated-gpt2/).
         logits = self.lm_head(x)  # (B, T, vocab_size)
         return logits
 

@@ -25,6 +25,8 @@ def test_forward_returns_logits_shaped_batch_time_vocab():
 def test_causal_masking_hides_future_tokens():
     # Behavioral check: changing the LAST token must not move the logits at any
     # earlier position, because those positions can't attend to the future.
+    # Background on masked/causal self-attention: "The Illustrated GPT-2"
+    # (https://jalammar.github.io/illustrated-gpt2/).
     torch.manual_seed(0)
     model = GPT(TINY)
     model.eval()
