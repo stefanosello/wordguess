@@ -13,6 +13,8 @@ mapping — a mismatch would silently scramble every prediction.
 Run `python -m model.tokenizer` for a round-trip demo.
 """
 
+from __future__ import annotations
+
 import json
 from pathlib import Path
 

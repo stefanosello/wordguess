@@ -47,7 +47,7 @@ they are trained locally from the corpora.
 
 ## Dev setup
 
-Everything runs on CPU — no GPU required. From the repo root:
+Everything runs on CPU — no GPU required. **Python 3.9+**. From the repo root:
 
 ```bash
 python3 -m venv .venv
@@ -74,6 +74,22 @@ pip install -r requirements-dev.txt   # pytest, httpx, ruff (dev deps)
 pytest
 ruff check .                          # lint; add --fix to auto-fix
 ```
+
+## Train a model
+
+Train a char-level GPT on a corpus. The loop reads the text, builds the
+tokenizer, and learns to predict the next character; it prints train/val loss
+as it goes and a short text sample at the end.
+
+```bash
+python -m model.train --corpus corpora/tinyshakespeare/input.txt
+```
+
+On a laptop CPU this takes a few minutes with the defaults; pass
+`--max-iters 500` for a quicker taste, or `--help` to see all knobs. The
+checkpoint (weights + config + vocab) is written to
+`corpora/<name>/checkpoints/ckpt.pt`, which is **gitignored** — weights are
+trained locally, never committed.
 
 ## API contract (target)
 
