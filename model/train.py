@@ -15,6 +15,8 @@ Lower --max-iters for a quicker run; the loss starts dropping within the first
 few hundred steps.
 """
 
+from __future__ import annotations
+
 import argparse
 import time
 from dataclasses import asdict, dataclass

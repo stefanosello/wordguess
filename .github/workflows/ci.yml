@@ -33,6 +33,12 @@ jobs:
 
   test:
     runs-on: ubuntu-latest  # CPU-only, matching the project's hard constraint
+    strategy:
+      matrix:
+        # Test the oldest supported Python (3.9) and a recent one (3.11). 3.9
+        # catches accidental use of newer syntax (e.g. PEP 604 `X | Y` unions),
+        # which a single-version job would silently let through.
+        python-version: ["3.9", "3.11"]
     steps:
       - name: Check out the code
         uses: actions/checkout@v4
@@ -40,9 +46,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          # Pin to 3.11 to match the documented dev setup. torch's wheels lag
-          # the newest Python releases, so a fixed version keeps installs boring.
-          python-version: "3.11"
+          python-version: "${{ matrix.python-version }}"
           cache: pip  # cache wheels keyed on the requirements files (torch is big)
 
       - name: Install dependencies
