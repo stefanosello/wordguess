@@ -197,6 +197,27 @@ class GPT(nn.Module):
         # Head maps each position's vector to a logit per vocab character.
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
 
+        # Initialize weights GPT-2 style. PyTorch's defaults would technically
+        # work, but small-normal init trains noticeably more stably — see the
+        # nanoGPT init and Radford et al.'s GPT-2. The residual projections get
+        # an extra 1/sqrt(2*n_layer) factor so that summing n_layer residual
+        # branches doesn't blow up the variance of the stream.
+        self.apply(self._init_weights)
+        for name, p in self.named_parameters():
+            if name.endswith("c_proj.weight"):
+                std = 0.02 / math.sqrt(2 * config.n_layer)
+                torch.nn.init.normal_(p, mean=0.0, std=std)
+
+    @staticmethod
+    def _init_weights(module: nn.Module) -> None:
+        """Small-normal init for Linear/Embedding weights; zero for biases."""
+        if isinstance(module, nn.Linear):
+            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
+            if module.bias is not None:
+                torch.nn.init.zeros_(module.bias)
+        elif isinstance(module, nn.Embedding):
+            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
+
     def forward(self, idx: torch.Tensor) -> torch.Tensor:
         """Map a batch of token ids to next-token logits.
 
