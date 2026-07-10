@@ -1,0 +1,19 @@
+# Run wordguess anywhere with Docker — the same Python 3.11 environment on every
+# PC, no local setup beyond Docker itself.
+#
+#   docker compose up --build            # serve the API at http://localhost:8000
+#                                        # (health check: curl localhost:8000/health)
+#
+#   docker compose run --rm app \        # train a model; the checkpoint lands in
+#     python -m model.train --corpus corpora/tinyshakespeare/input.txt
+#                                        # ./corpora on the host (see the volume below)
+#
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount corpora so trained checkpoints persist on the host and survive
+      # container removal (weights are never baked into the image).
+      - ./corpora:/app/corpora
