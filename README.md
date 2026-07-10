@@ -55,8 +55,6 @@ source .venv/bin/activate
 pip install -r requirements.txt   # torch (CPU build), fastapi, uvicorn
 ```
 
-(Prefer not to manage Python at all? See [Run with Docker](#run-with-docker).)
-
 Run the server:
 
 ```bash
@@ -92,30 +90,6 @@ On a laptop CPU this takes a few minutes with the defaults; pass
 checkpoint (weights + config + vocab) is written to
 `corpora/<name>/checkpoints/ckpt.pt`, which is **gitignored** — weights are
 trained locally, never committed.
-
-## Run with Docker
-
-Docker gives you the exact same CPU-only environment on any machine — handy if
-your system Python is older than 3.9 or you'd rather not manage a venv. You only
-need Docker installed.
-
-Serve the API:
-
-```bash
-docker compose up --build          # http://localhost:8000
-curl localhost:8000/health         # -> {"status":"ok"}
-```
-
-Train a model (the checkpoint lands in `./corpora` on your host, because that
-directory is mounted into the container):
-
-```bash
-docker compose run --rm app \
-  python -m model.train --corpus corpora/tinyshakespeare/input.txt
-```
-
-The image installs the CPU build of PyTorch, so it stays around ~1 GB rather
-than pulling the multi-gigabyte CUDA wheel.
 
 ## API contract (target)
 
